@@ -1,21 +1,24 @@
 package BlackAdhuleSystem.dev.userAdvicesMariadb.controller;
 
-import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.Advice;
-import BlackAdhuleSystem.dev.userAdvicesMariadb.services.AdviceService;
+import BlackAdhuleSystem.dev.userAdvicesMariadb.dto.AdviceDto;
+import BlackAdhuleSystem.dev.userAdvicesMariadb.services.interfaces.AdviceService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin("*")
 @AllArgsConstructor
 @RestController
-@RequestMapping("/advice")
+@RequestMapping("/advices")
 public class AdviceController {
-//    injection de service
-    private  final AdviceService adviceService;
+    private AdviceService adviceService;
 
     @PostMapping
-    @ResponseStatus (HttpStatus.CREATED)
-    public void create(@RequestBody Advice advice){
-        this.adviceService.adviceCreate(advice);
+    public ResponseEntity<AdviceDto> serviceCreateApi(@RequestBody AdviceDto adviceDto) {
+        AdviceDto saveAdvice = adviceService.createAdvice(adviceDto);
+        return new ResponseEntity<>(saveAdvice, HttpStatus.CREATED);
     }
+
+
 }

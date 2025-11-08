@@ -1,6 +1,5 @@
-package BlackAdhuleSystem.dev.userAdvicesMariadb.entity;
+package BlackAdhuleSystem.dev.userAdvicesMariadb.dto;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,11 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
-@Table (name = "advices")
-public class Advice {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class AdviceDto {
     private Long id;
     private String message;
     private String status;

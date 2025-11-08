@@ -1,8 +1,7 @@
 package BlackAdhuleSystem.dev.userAdvicesMariadb.repository;
 
 import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.Advice;
-import jakarta.persistence.Id;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface AdviceRepository extends CrudRepository <Advice, Id>{
+public interface AdviceRepository extends JpaRepository <Advice,Long> {
 }
