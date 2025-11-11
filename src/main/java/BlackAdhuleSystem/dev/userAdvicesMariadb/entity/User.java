@@ -27,7 +27,7 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private boolean actif=false;
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL)
     private Role role;
 
     @Override

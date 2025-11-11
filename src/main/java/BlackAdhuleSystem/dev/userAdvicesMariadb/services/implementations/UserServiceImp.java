@@ -2,11 +2,11 @@ package BlackAdhuleSystem.dev.userAdvicesMariadb.services.implementations;
 
 import BlackAdhuleSystem.dev.userAdvicesMariadb.dto.UserDto;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.Role;
-import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.RoleRepository;
+
 import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.RoleType;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.User;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.mapper.UserMapper;
-
+import BlackAdhuleSystem.dev.userAdvicesMariadb.repository.RoleRepository;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.repository.UserRepository;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
@@ -14,52 +14,43 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * Implémentation du service utilisateur.
+ * Contient la logique métier pour la création, modification, suppression des utilisateurs.
+ */
 @Service
 @AllArgsConstructor
 public class UserServiceImp implements UserService {
 
     private final UserRepository userRepository;
-   private final RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public UserDto createUser(UserDto userDto) {
-
-        // Vérification de l'adresse email
-        if (!userDto.getEmail().contains("@") || !userDto.getEmail().contains(".")) {
-            throw new RuntimeException("Your email address is not valid");
+        if (userRepository.findByEmail(userDto.getEmail()).isPresent()) {
+            throw new RuntimeException("Email déjà utilisé !");
         }
 
-        // Vérifier si l'utilisateur existe déjà
-        Optional<User> existingUser = this.userRepository.findByEmail(userDto.getEmail());
-        if (existingUser.isPresent()) {
-            throw new RuntimeException("Your email address is already used");
-        }
+        // Encoder le mot de passe
+        String encodedPassword = passwordEncoder.encode(userDto.getPassword());
+        userDto.setPassword(encodedPassword);
 
-        // Crypter le mot de passe
-        String cryptedPassword = this.passwordEncoder.encode(userDto.getPassword());
-
-        // Mapper DTO -> Entité
-        User user = UserMapper.mapToUser(userDto);
-        user.setPassword(cryptedPassword);
-
-        // 🔹 Assigner un rôle par défaut
-        Role userRole = roleRepository.findByRoleType(RoleType.USER)
+        // Assigner le rôle USER par défaut si non spécifié
+        Role role = roleRepository.findByRoleType(RoleType.USER)
                 .orElseGet(() -> {
                     Role newRole = new Role();
                     newRole.setRoleType(RoleType.USER);
                     return roleRepository.save(newRole);
                 });
 
-        user.setRole(userRole);
+        User user = UserMapper.mapToUser(userDto);
+        user.setRole(role);
 
-        // 🔹 Sauvegarder l’utilisateur
-        User userSaved = userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        // 🔹 Retourner DTO
-        return UserMapper.mapToUserDto(userSaved);
+        return UserMapper.mapToUserDto(savedUser);
     }
 
     @Override
@@ -71,27 +62,26 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
         return UserMapper.mapToUserDto(user);
     }
 
     @Override
-    public UserDto updateUser(Long userId, UserDto userDto) {
-        User existingUser = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserDto updateUser(Long id, UserDto dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
 
-        existingUser.setName(userDto.getName());
-        existingUser.setEmail(userDto.getEmail());
-        existingUser.setActif(userDto.isActif());
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setActif(dto.isActif());
 
-        User updated = userRepository.save(existingUser);
-        return UserMapper.mapToUserDto(updated);
+        return UserMapper.mapToUserDto(userRepository.save(user));
     }
 
     @Override
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
     }
 }

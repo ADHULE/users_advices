@@ -1,5 +1,7 @@
-package BlackAdhuleSystem.dev.userAdvicesMariadb.entity;
+package BlackAdhuleSystem.dev.userAdvicesMariadb.repository;
 
+import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.Role;
+import BlackAdhuleSystem.dev.userAdvicesMariadb.entity.RoleType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
