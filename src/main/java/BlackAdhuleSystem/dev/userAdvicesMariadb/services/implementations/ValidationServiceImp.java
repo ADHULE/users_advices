@@ -26,7 +26,8 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 @Service
 @AllArgsConstructor
 @Transactional
-public class ValidationServiceImp implements ValidationService {
+public class ValidationServiceImp implements ValidationService   {
+
 
     private static final Logger logger = LoggerFactory.getLogger(ValidationServiceImp.class);
 
@@ -87,5 +88,16 @@ public class ValidationServiceImp implements ValidationService {
         SecureRandom secureRandom = new SecureRandom();
         int number = secureRandom.nextInt(900_000) + 100_000;
         return String.format("%06d", number);
+    }
+
+    /**
+     * @param code 
+     * @return
+     */
+    @Override
+    public ValidationDto findValidationByCode(String code) {
+        Validation validation = (Validation) validationRepository.findByCode(code).orElseThrow(() -> new RuntimeException("Code de validation invalide ou expiré"));
+
+        return ValidationMapper.mapToValidationDto(validation);
     }
 }

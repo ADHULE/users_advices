@@ -6,4 +6,5 @@ import BlackAdhuleSystem.dev.userAdvicesMariadb.dto.ValidationDto;
 public interface ValidationService {
     ValidationDto saveValidation(UserDto userDto);
     String generateCode();
+    ValidationDto findValidationByCode(String code);
 }
