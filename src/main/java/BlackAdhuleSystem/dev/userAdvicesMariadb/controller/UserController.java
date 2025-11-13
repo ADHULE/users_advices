@@ -3,6 +3,7 @@ package BlackAdhuleSystem.dev.userAdvicesMariadb.controller;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.dto.AuthentificationDto;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.dto.UserDto;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.repository.UserRepository;
+import BlackAdhuleSystem.dev.userAdvicesMariadb.security.JwtService;
 import BlackAdhuleSystem.dev.userAdvicesMariadb.services.interfaces.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.Map;
 public class UserController {
     private final UserService userService;
     private AuthenticationManager authenticationManager;
+    private JwtService jwtService;
 
     @PostMapping(path = "inscription")
     public ResponseEntity<UserDto> inscruption(@RequestBody UserDto userDto) {
@@ -45,7 +47,11 @@ public class UserController {
                         authentificationDto.username(),
                         authentificationDto.password())
         );
-        log.info("Resultat {}"+authenticate.isAuthenticated());
+//        generer le jeton si l'utilisateur est authentifié
+        if (authenticate.isAuthenticated()) {
+            return this.jwtService.jwtGenerate(authentificationDto.username());
+        }
+//        log.info("Resultat {}" + authenticate.isAuthenticated());
         return null;
     }
 
